@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <title>경기도 임상병리사회 추첨 시스템</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="kensu">
+  <meta name="Keywords" content="추첨">
+  <meta name="Description" content="환경설정">
+  <link rel="stylesheet" href="assets/css/basic.css">
+  <script src="assets/js/jquery-3.4.1.js"></script>
+  <script src="assets/js/common.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Tmon';
+      font-weight: normal;
+      font-style: normal;
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot');
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot?#iefix') format('embedded-opentype'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff2') format('woff2'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff') format('woff'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.ttf') format("truetype");
+      font-display: swap;
+    }
+
+    * {
+      font-family: "Tmon";
+    }
+
+    .example {
+      width: 35%;
+      padding: 0 0 10px;
+      margin-bottom: 20px;
+      float: right;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .example .rank {
+      float: left;
+    }
+
+    .example .rank .title {
+      width: 100%;
+      margin: 0 0 10px;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: normal;
+      background: #333333;
+    }
+
+    .example .rank .ex {
+      float: left;
+      margin: 5px 10px;
+    }
+  </style>
+</head>
+
+<body class="hello"
+  style="background:black url( 'assets/images/image05.png') no-repeat fixed 0% 0%/100% 100%; overflow:hidden;">
+  <header>
+    <!-- < header > -->
+    <h1 id="pageTitle" style="font-weight: 900; font-size: 180%; color: #252525;">경기도 임상병리사회 추첨 시스템</h1>
+  </header>
+  <!-- 
+		<nav>
+		< nav >
+		<ul>
+		  <li></li>
+		  <li></li>
+		  <li></li>
+		</ul>
+		</nav>
+		-->
+  <section style="width: calc(100% - 100px);">
+    <!-- < section > -->
+    <!-- <header>< header ></header> -->
+    <!-- 
+			<article id="filearea">
+				< article >
+				<input type="file" id="my_file_input" />
+				<input type="button" value="설정저장" id="saveConfig">
+			</article>
+			 -->
+    <!-- < article > -->
+    <div class="setupbox">
+      <div class="title" style="font-size:28px; color: white;">
+        <span id="stage"></span> 추첨준비 <input type="button" value="Start" id="doDrawlots">
+      </div>
+      <div id="setin" style="width: 100%;">
+        <div class="resized-splitflap ex" id='fliptext' style="margin:10px 0;">ARE YOU READY?</div>
+        <IMG SRC="assets/images/ready.jpg" width="100%" height="440px" BORDER="0" ALT="준비이미지" />
+      </div>
+      <div class="example" style="display:none;">
+        <div class="rank" id="05">
+          <div class="title" style="color: white;">5th</div>
+          <div class="resized-splitflap ex" id='0501'>000000</div>
+          <div class="resized-splitflap ex" id='0502'>000000</div>
+          <div class="resized-splitflap ex" id='0503'>000000</div>
+          <div class="resized-splitflap ex" id='0504'>000000</div>
+          <div class="resized-splitflap ex" id='0505'>000000</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- <footer>< footer ></footer> -->
+  </section>
+  <!-- 
+		<aside>
+		< aside >
+		</aside>
+		-->
+  <footer style="font-weight: 600; font-size: 140%; color: #252525;">
+    <!-- < footer > -->
+    <img src="assets/images/logo.jpg" width="172" height="74" border="0" alt="경기도 임상병리사회"
+      style="width:172px;height:74px;vertical-align:middle;">
+    <span style="display:inline-block; width:30px;"></span>
+    경기도 임상병리사회
+    <iframe src="assets/media/ready.mp3" allow="autoplay" style="display:none" id="iframeAudio">
+    </iframe>
+  </footer>
+  <script src="assets/js/jquery-1.10.1.min.js"></script>
+  <script src="assets/js/jquery.splitflap.js"></script>
+  <script>
+    (function ($) {
+
+      // localStorage에서 불러낸 JSON data 
+      var stageData = JSON.parse(localStorage.getItem('stageData'));
+      var inExcelJSON = JSON.parse(localStorage.getItem('inExcelJSON'));
+
+      $(document).ready(function () {
+
+        /*
+                  console.log( stageData[0].stageName );				// 추첨명
+                  console.log( stageData[0].stageCnt );				// 추첨수
+                  console.log( localStorage.getItem('stageNo') );		// 현재 스테이지
+                  console.log( stageData.length -1 );					// 마지막 추첨
+        
+                  console.log( inExcelJSON.length );	// 인원수
+                  console.log( inExcelJSON );	// 인원 전체
+        */
+        // pageTitle
+        $("#pageTitle").html(inExcelJSON[0].교육명);
+
+        var stageNo = localStorage.getItem('stageNo');
+        var idx = stageNo;
+        //					console.log( "stageNo : " + stageNo );
+        $("#stage").html(stageData[0].stageName);
+
+        var ratio = 0.5;
+        $('#fliptext')
+          .splitFlap({
+            charWidth: 50 * ratio,
+            charHeight: 100 * ratio,
+            imageSize: (2500 * ratio) + 'px ' + (100 * ratio) + 'px'
+          });
+
+      });
+
+      // 클릭 시 변경
+      /*
+      $( "#fliptext" ).click(function() {
+        var audio = new Audio('assets/media/wheel.mp3');
+        audio.play();
+        var ratio = 0.5;
+        $(this).text("test").splitFlap({
+              charWidth:  50 * ratio,
+              charHeight: 100 * ratio,
+              imageSize:  (2500 * ratio) + 'px ' + (100 * ratio) + 'px'
+        });				
+      });
+      */
+
+      $("#doDrawlots").click(function () {
+
+        // 최초 당첨자 선출
+        var winnerArray = new Array();
+        var applyNum = inExcelJSON.length;
+        var setMaxCnt = stageData[0].stageCnt;
+        for (var i = 0; i < setMaxCnt;) {
+          var randomNum = makeRandom(parseInt(applyNum));
+          if (checkDuple(winnerArray, randomNum)) {
+            winnerArray.push(randomNum);
+            i++;
+          }
+        }
+
+        localStorage.setItem("winnerArray", winnerArray.toString());
+        localStorage.setItem("stageNo", "0");
+        localStorage.setItem("delArray", "");
+        localStorage.setItem("delTotArray", "");
+        localStorage.setItem("resultArray", "");
+        location.href = "drawlots.html";
+
+      });
+
+      function makeRandom(max) {
+        var RandVal = Math.floor(Math.random() * (max));
+        return RandVal;
+      }
+
+      function checkDuple(inArray, val) {
+        for (var j = 0; j < inArray.length; j++) {
+          if (inArray[j] == val) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+    })(jQuery);
+
+
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <title>경기도 임상병리사회 추첨 시스템 환경설정</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="kensu">
+  <meta name="Keywords" content="추첨">
+  <meta name="Description" content="환경설정">
+  <link rel="stylesheet" href="assets/css/basic.css">
+  <script src="assets/js/jquery-3.4.1.js"></script>
+  <script src="assets/js/xlsx.full.min.js"></script>
+  <script src="assets/js/jszip.js"></script>
+  <script src="assets/js/tableToExcel.js"></script>
+  <script src="assets/js/common.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Tmon';
+      font-weight: normal;
+      font-style: normal;
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot');
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot?#iefix') format('embedded-opentype'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff2') format('woff2'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff') format('woff'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.ttf') format("truetype");
+      font-display: swap;
+    }
+
+    * {
+      font-family: "Tmon";
+    }
+  </style>
+</head>
+
+<body class="hello" style="background:black url( 'assets/images/image05.png') no-repeat fixed 0% 0%/100% 100%;">
+  <header>
+    <!-- < header > -->
+    <h1 style="font-weight: 900; font-size: 180%; color: #252525;">경기도 임상병리사회 추첨 시스템 환경설정</h1>
+  </header>
+  <!-- 
+		<nav>
+		< nav >
+		<ul>
+		  <li></li>
+		  <li></li>
+		  <li></li>
+		</ul>
+		</nav>
+		-->
+  <section style="width: calc(100% - 100px);">
+    <!-- < section > -->
+    <!-- <header>< header ></header> -->
+    <article id="filearea">
+      <!-- < article > -->
+      <input type="file" id="fileUpload" />
+      <input type="button" value="설정저장" id="saveConfig"><br />
+      <a href="file/as_20190614.xlsx" download>( 설정파일download )</a>
+    </article>
+
+    <!-- < article > -->
+    <div class="setupbox">
+      <div class="title" style="font-size:28px; color: white;">
+        순위/상품명 <input type="button" value="추가" id="addPrize">
+      </div>
+      <div id="setin">
+        <div class="inbox" id="1">
+          상품명 : <input type="text" class="prizeName" id="prizeName1">
+          추첨수 : <input type="text" class="prizeCnt" id="prizeCnt1" maxlength="2" onkeyup="onlyNumber(this)">
+          <div>
+          </div>
+        </div>
+
+        <!-- <footer>< footer ></footer> -->
+  </section>
+  <!-- 
+		<aside>
+		< aside >
+		</aside>
+		-->
+  <footer style="font-weight: 600; font-size: 140%; color: #252525;">
+    <!-- < footer > -->
+    <img src="assets/images/logo.jpg" width="172" height="74" border="0" alt="경기도 임상병리사회"
+      style="width:172px;height:74px;vertical-align:middle;">
+    <span style="display:inline-block; width:30px;"></span>
+    경기도 임상병리사회
+  </footer>
+  <script>
+
+    // 추가 클릭시 테이블에 상품 추가
+    var idx = 2;
+    $("#addPrize").click(function () {
+      var html = "<div class='inbox' id='" + idx + "'>";
+      html += "상품명 : <input type='text' class='prizeName' id='prizeName" + idx + "'>";
+      html += "추첨수 : <input type='text' class='prizeCnt' maxlength='2' onkeyup='onlyNumber(this)' id='prizeCnt" + idx + "'>";
+      html += "<input type='button' value='삭제' onclick='removePrize(this)' id='" + idx + "'>"
+      html += "</div>";
+      idx++;
+      $('#setin').append(html);
+    });
+
+    // 삭제 클릭시 테이블에 상품 추가
+    function removePrize(obj) {
+      $('#' + obj.id).remove();
+    }
+
+    // 설정 저장 처리
+    $("#saveConfig").click(function () {
+
+      // 파일 첨부 체크 
+      var filePath = $('#fileUpload').val();
+      if (filePath == "") {
+        alert("업로드 파일을 선택해 주세요.");
+        $('#fileUpload').click();
+        return false;
+      }
+
+      // 미입력 체크
+      var chk1 = false;
+      $(".prizeName").each(function () {
+        if ($(this).val() == "") {
+          alert("상품명을 입력해 주세요.");
+          this.focus();
+          chk1 = true;
+          return false;
+        }
+      });
+      if (chk1) {
+        return false;
+      }
+
+      var chk2 = false;
+      $(".prizeCnt").each(function () {
+        if ($(this).val() == "") {
+          alert("추첨 수 입력해 주세요.");
+          this.focus();
+          chk2 = true;
+          return false;
+        }
+      });
+      if (chk2) {
+        return false;
+      }
+
+      // stageData 만들어서 localStorage에 JSON형태로 저장 후 다음단계로 진입
+      var stageData = "[";
+      $(".inbox").each(function (index) {
+        var id = $(this).attr('id');
+        var lastIdx = $(".inbox").length - 1;
+
+        if (index != 0) {
+          stageData += ","
+        }
+        stageData += '{\"stageName\":\"' + $('#prizeName' + id).val() + '\"';
+        stageData += ',\"stageCnt\":\"' + $("#prizeCnt" + id).val() + '\"}';
+        if (index == lastIdx) {
+          stageData += "]"
+        }
+      });
+
+      // 엑셀 데이터 저장 : localStorage에 inExcelJSON 로 저장
+      Upload();
+
+      localStorage.clear();
+      localStorage.setItem('stageData', stageData);
+      //				alert( localStorage.getItem('setData') );
+      localStorage.setItem('stageNo', "0");
+      //				alert( localStorage.getItem('stage') );
+      //				alert( 144 );
+      location.href = "intro.html";
+
+    });
+
+    /**
+      *
+      * @Author Developer SaintPark
+      * @Blog https://developersp.tistory.com/15
+      * - 프로그램에 대한 문의는 블로그 댓글을 활용해주세요.
+      *
+      */
+
+    // 응모 내역에서 빈칸은 없어야 합니다.(빈칸이 있으면 인식하지 못함. 엑셀에서 빈칸을 - 등으로 채우는 작업 후 진행하시길 바랍니다.)
+    // 한번 추첨이 완료되면 되면 추천 리셋 버튼 클릭 or 새로고침 이전까지 재추첨 및 내용 수정이 안됩니다.
+
+    var inExcelJSON;
+    var prizeIndex = 0;
+    var prizeTable = $("#prizeTable");
+    var winnerArray = new Array();
+    var winnerField = new Array();
+    var isPrize = 0;
+
+    function Upload() {
+
+      if (isPrize != 0) {
+        return;
+      }
+
+      //Reference the FileUpload element.
+      var fileUpload = document.getElementById("fileUpload");
+
+      //Validate whether File is valid Excel file.
+      var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+      if (regex.test(fileUpload.value.toLowerCase())) {
+        if (typeof (FileReader) != "undefined") {
+          var reader = new FileReader();
+
+          //For Browsers other than IE.
+          if (reader.readAsBinaryString) {
+            reader.onload = function (e) {
+              ProcessExcel(e.target.result);
+              //              jsSetPrizeToTable();
+            };
+            reader.readAsBinaryString(fileUpload.files[0]);
+          } else {
+            //For IE Browser.
+            reader.onload = function (e) {
+              var data = "";
+              var bytes = new Uint8Array(e.target.result);
+              for (var i = 0; i < bytes.byteLength; i++) {
+                data += String.fromCharCode(bytes[i]);
+              }
+              ProcessExcel(data);
+              //              jsSetPrizeToTable();
+            };
+            reader.readAsArrayBuffer(fileUpload.files[0]);
+          }
+        } else {
+          alert("HTML5를 지원하는 브라우저로 사용해주세요.");
+        }
+      } else {
+        alert("유효한 엑셀 파일을 업로드하세요.");
+      }
+    };
+
+    function ProcessExcel(data) {
+      //Read the Excel File data.
+      var workbook = XLSX.read(data, {
+        type: 'binary'
+      });
+
+      //Fetch the name of First Sheet.
+      var firstSheet = workbook.SheetNames[0];
+
+      //Read all rows from First Sheet into an JSON array.
+      var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+
+      inExcelJSON = excelRows;
+      localStorage.setItem('inExcelJSON', JSON.stringify(inExcelJSON));
+
+    };
+
+  </script>
+
+</body>
+
+</html>

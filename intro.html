@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>W3.CSS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta content="text/html; charset=iso-8859-2" http-equiv="Content-Type">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <style>
+    @font-face {
+      font-family: 'Tmon';
+      font-weight: normal;
+      font-style: normal;
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot');
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot?#iefix') format('embedded-opentype'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff2') format('woff2'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff') format('woff'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.ttf') format("truetype");
+      font-display: swap;
+    }
+
+    * {
+      font-family: "Tmon";
+    }
+
+    body {
+      -ms-overflow-style: none;
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mySlides {
+      display: none;
+    }
+  </style>
+  <script language="JavaScript">
+    // 전체화면
+    document.documentElement.webkitRequestFullscreen();
+    function forwarding() {
+      location = "ready.html"
+    }
+    function musicOn() {
+      var audio = new Audio('assets/media/intro.mp3');
+      audio.play();
+
+    }
+  </script>
+</head>
+
+<body>
+  <!--
+  <h2 class="w3-center">경기도 임상병리사회 추첨 시스템</h2>
+-->
+  <div class="w3-content w3-section" style="max-width:100%">
+    <img class="mySlides" src="assets/images/image01.png" style="width:100%">
+    <img class="mySlides" src="assets/images/image02.png" style="width:100%">
+    <img class="mySlides" src="assets/images/image03.png" style="width:100%">
+    <img class="mySlides" src="assets/images/image04.png" style="width:100%">
+  </div>
+  <iframe src="assets/media/intro.mp3" allow="autoplay" style="display:none" id="iframeAudio">
+  </iframe>
+
+  <script>
+    var myIndex = 0;
+    carousel();
+    function carousel() {
+
+      var i;
+      var x = document.getElementsByClassName("mySlides");
+      for (i = 0; i < x.length; i++) {
+        x[i].style.display = "none";
+      }
+      myIndex++;
+      if (myIndex > x.length) {myIndex = 1}
+      x[myIndex - 1].style.display = "block";
+      setTimeout(carousel, 5000); // Change image every 4 seconds
+    }
+    setTimeout(forwarding, 20000); // Change image every 2 seconds
+  </script>
+</body>
+
+</html>

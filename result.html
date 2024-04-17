@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <title>경기도 임상병리사회 추첨 시스템</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="kensu">
+  <meta name="Keywords" content="추첨">
+  <meta name="Description" content="환경설정">
+  <link rel="stylesheet" href="assets/css/basic.css">
+  <script src="assets/js/jquery-3.4.1.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/xlsx.full.min.js"></script>
+  <script src="assets/js/jszip.js"></script>
+  <script src="assets/js/tableToExcel.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Tmon';
+      font-weight: normal;
+      font-style: normal;
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot');
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot?#iefix') format('embedded-opentype'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff2') format('woff2'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff') format('woff'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.ttf') format("truetype");
+      font-display: swap;
+    }
+
+    * {
+      font-family: "Tmon";
+    }
+
+    .example {
+      width: 35%;
+      padding: 0 0 10px;
+      margin-bottom: 20px;
+      float: right;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .example .rank {
+      float: left;
+    }
+
+    .example .rank .title {
+      width: 100%;
+      margin: 0 0 10px;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: normal;
+      background: #333333;
+    }
+
+    .example .rank .ex {
+      float: left;
+      margin: 5px 10px;
+    }
+  </style>
+</head>
+
+<body class="hello" style="background:black url( 'assets/images/image05.png') no-repeat fixed 0% 0%/100% 100%;">
+  <header>
+    <!-- < header > -->
+    <h1 id="pageTitle" style="font-weight: 900; font-size: 180%; color: #252525;">경기도 임상병리사회 추첨 시스템</h1>
+  </header>
+  <!-- 
+		<nav>
+		< nav >
+		<ul>
+		  <li></li>
+		  <li></li>
+		  <li></li>
+		</ul>
+		</nav>
+		-->
+  <section style="width: calc(100% - 100px);">
+    <!-- < section > -->
+    <!-- <header>< header ></header> -->
+    <!-- 
+			<article id="filearea">
+				< article >
+				<input type="file" id="my_file_input" />
+				<input type="button" value="설정저장" id="saveConfig">
+			</article>
+			 -->
+    <!-- < article > -->
+    <div class="setupbox" style="min-height:541px;">
+      <div class="title" style="font-size:28px; color: white;">
+        전체 추첨결과
+        <input type="button" value="Save" id="saveExcel">
+        <input type="button" value="End" id="endSystem" style="display: none;">
+      </div>
+      <div class="example" id="resultArea" style="width: 100%;">
+
+      </div>
+    </div>
+    <div style="display: none;">
+      <table border="1" cellspacing="0" id="prizeTable">
+        <tr>
+          <th>상품명</th>
+          <th>면허번호</th>
+          <th>이름</th>
+        </tr>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+
+    <!-- <footer>< footer ></footer> -->
+  </section>
+  <!-- 
+		<aside>
+		< aside >
+		</aside>
+		-->
+  <footer style="font-weight: 600; font-size: 140%; color: #252525;">
+    <!-- < footer > -->
+    <img src="assets/images/logo.jpg" width="172" height="74" border="0" alt="경기도 임상병리사회"
+      style="width:172px;height:74px;vertical-align:middle;">
+    <span style="display:inline-block; width:30px;"></span>
+    경기도 임상병리사회
+    <iframe src="assets/media/result.mp3" allow="autoplay" style="display:none" id="iframeAudio">
+    </iframe>
+  </footer>
+  <script src="assets/js/jquery-1.10.1.min.js"></script>
+  <script src="assets/js/jquery.splitflap.js"></script>
+  <script>
+    (function ($) {
+
+      // localStorage에서 불러낸 JSON data 
+      var stageData = JSON.parse(localStorage.getItem('stageData'));
+      var inExcelJSON = JSON.parse(localStorage.getItem('inExcelJSON'));
+      var resultArray = JSON.parse(localStorage.getItem('resultArray'));
+
+      $(document).ready(function () {
+
+        // pageTitle
+        $("#pageTitle").html(inExcelJSON[0].교육명);
+
+        var html = "";
+        var tableHtml = "";
+        // 당첨자 출력용 html만들기
+        for (var i in resultArray) {
+          var idx = resultArray.length - i - 1;
+          console.log(resultArray[idx].stageName);
+          console.log(resultArray[idx].idxArray);
+          var idxArray = resultArray[idx].idxArray.split(",");
+
+          html += "<div class='rank' id='" + idx + "' style='color: white; width: 100%;'>";
+          html += "	<div class='title' style='color: white; width: 100%;'>" + resultArray[idx].stageName + "</div>"
+          for (var idx2 in idxArray) {
+            html += "	<div class='resized-splitflap ex' id='" + idx + idx2 + "'>" + inExcelJSON[idxArray[idx2]].면허번호 + "</div>"
+          }
+          html += "</div>";
+
+          for (var idx3 in idxArray) {
+            tableHtml += "<tr>";
+            tableHtml += "<td>" + resultArray[idx].stageName + "</td>";
+            tableHtml += "<td>" + inExcelJSON[idxArray[idx3]].면허번호 + "</td>";
+            tableHtml += "<td>" + inExcelJSON[idxArray[idx3]].이름 + "</td>";
+            tableHtml += "</tr>";
+          }
+
+        }
+
+        $("#resultArea").html(html);
+        $("#tableBody").html(tableHtml);
+
+        var ratio = 0.5;
+        $('.resized-splitflap')
+          .splitFlap({
+            charWidth: 50 * ratio,
+            charHeight: 100 * ratio,
+            imageSize: (2500 * ratio) + 'px ' + (100 * ratio) + 'px'
+          });
+
+      });
+
+      $("#saveExcel").click(function () {
+        // 엑셀 데이터 저장
+        TableToExcel.convert(document.getElementById("prizeTable"));
+        $("#endSystem").show();
+      });
+
+      $("#endSystem").click(function () {
+
+        location.href = "end.html";
+      });
+
+    })(jQuery);
+
+
+
+  </script>
+
+</body>
+
+</html>

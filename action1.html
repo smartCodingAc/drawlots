@@ -1,0 +1,595 @@
+<DOCTYPE! html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>당첨자 뽑기!</title>
+  <script src="js/jquery-3.4.1.js"></script>
+  <script src="js/xlsx.full.min.js"></script>
+  <script src="js/jszip.js"></script>
+  <script src="js/tableToExcel.js"></script>
+  <style>
+	*
+	{
+	  color: #fff;
+	  font-size: 28px;
+	  font-weight: 300;
+	  box-sizing: border-box;
+	  font-family: 'Metrophobic', Arial, serif; font-weight: 400;
+	}
+
+	body
+	{
+	  background-color: #323232;
+	  padding: 50px;
+	}
+
+	header,
+	nav,
+	section,
+	aside,
+	footer
+	{
+	  text-align: center;
+	  border-radius: 5px;
+	  padding: 50px;
+	  background-color: #ffffff;
+      background-color: rgba( 255, 255, 255, 0.15 );
+	}
+
+	header,
+	nav,
+	footer
+	{
+	  width: 100%;
+	  padding: 50px;
+	}
+
+	header
+	{
+	  margin-bottom: 50px;
+	}
+
+	h1
+	{
+	  margin: 0;
+	}
+
+	nav
+	{
+	  width: 0%;
+	}
+
+	aside
+	{
+	  width: 440px;
+	  background-color: #ffffff;
+      background-color: rgba( 255, 255, 255, 0.15 );
+	}
+
+	section
+	{
+	  float: left;
+	  width: calc(100% - 460px);
+	  margin: 0 10px 50px 0;
+	}
+
+	section header,
+	section article,
+	section footer
+	{
+	  width: 100%;
+	  background-color: #999999;
+	  border-radius: 5px;
+	  margin: 0;
+	  padding: 50px;
+	}
+
+	section article
+	{
+	  margin: 25px 0;
+	}
+
+	nav
+	{
+	  float: left;
+	}
+
+	aside
+	{
+	  float: right;
+	}
+
+	nav ul
+	{
+	  list-style-type: none;
+	  padding: 0;
+	  margin-bottom: 0;
+	}
+
+	nav li
+	{
+	  display: inline-block;
+	  margin: 0 0 0 50px;
+	  width: 100px;
+	}
+
+	nav li:first-child
+	{
+	  margin-left: 0;
+	}
+
+	footer
+	{
+	  clear: both;
+	}
+
+
+	.example {
+		width: 100%;
+		padding: 0 0 10px;
+		margin-bottom: 20px;
+		float: right;
+		box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+	}
+
+	.example .rank {
+		float: left;
+	}
+
+	.example .rank .title {
+		width: 340px;
+		margin: 0 0 10px;
+		padding: 10px;
+		font-size: 16px;
+		font-weight: normal;
+		background: #333333;
+	}
+
+	.example .rank .ex {
+		float: left;
+		margin: 5px 10px;
+	}
+
+	h1 {
+		margin: 0 0 10px;
+		padding: 10px;
+		font-size: 16px;
+		font-weight: normal;
+		background: #333333;
+	}
+
+	.splitflap {
+		margin: 0 auto;
+		-webkit-perspective-origin: top center;
+		-moz-perspective-origin: top center;
+		-ms-perspective-origin: top center;
+		perspective-origin: top center;
+
+		-webkit-perspective: 900px;
+		-moz-perspective: 900px;
+		-ms-perspective: 900px;
+		perspective: 900px;
+	}
+
+  </style>
+</head>
+<body class="hello" style="background:black url( 'assets/images/image05.png') no-repeat fixed 0% 0%/100% 100%;">
+  <header>
+    <h1>< header ></h1>
+	<a href="action2.html">1등뽑기</a>
+  </header>
+<!-- 
+  <nav>
+    < nav >
+    <ul>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </nav>
+ -->
+  <section>
+    < section >
+    <header>< header ></header>
+    <article>
+	< article >
+
+	  <div>
+		<span>1. 엑셀 파일을 업로드 하세요.</span><br>
+		<hr/>
+		<input type="file" id="fileUpload" />
+		<input type="button" id="upload" value="엑셀 업로드" onclick="Upload();" />
+	  </div>
+	  <br><br><br><br>
+
+	  <div>
+		<span>2. 상품을 추가/삭제 하세요.</span><br>
+		<hr/>
+		상품명 : <input type="text" id="prizeName"> <input type="button" value="상품 추가(+1)" id="addPrize1"> <input type="button" value="상품 추가(+5)" id="addPrize5"> <input type="button" value="상품 추가(+20)" id="addPrize20">  <input type="button" value="상품 추가(+100)" id="addPrize100"> <input type="button" value="상품 삭제" id="delPrize">
+	  </div>
+	  <br><br><br><br>
+
+	  <div>
+		<span>3. 상품 추첨 시작!!</span>
+		<hr/>
+		<input type="button" value="상품 추첨" id="setWinner">
+	  </div>
+
+	  <br><br><br>
+	  <hr/>
+
+	  <div>
+		<span>[ 상품 추첨 테이블 ]</span><br><br>
+		<table border="1" cellspacing="0" id="prizeTable">
+		  <tr id="tableHeader">
+			<th>번호</th><th>상품명</th>
+		  </tr>
+		  <tbody></tbody>
+		</table>
+	  </div>
+
+
+	  <br><br><br><br>
+
+	  <div>
+		<span>※ 추첨 결과 저장하기</span>
+		<hr/>
+		<input type="button" value="추첨 결과 저장" id="saveWinner">
+	  </div>
+
+	  <br><br><br><br>
+
+	  <div>
+		<span>※ 추첨 결과 리셋하기</span>
+		<hr/>
+		<input type="button" value="추첨 결과 리셋" id="resetWinner">
+	  </div>
+
+	  <br><br><br><br>
+
+	</article>
+    <footer>< footer ></footer>
+  </section>
+  <aside>
+		<div class="example">
+			<div class="rank" id="01">
+				<div class="title" style="color: white;">1st</div>
+				<div class="ex" id='0101' onclick="javascript:chgNo(this);">000000</div>
+			</div>
+			<div class="rank" id="02">
+				<div class="title" style="color: white;">2nd</div>
+				<div class="ex" id='0201'>000000</div>
+				<div class="ex" id='0202'>000000</div>
+			</div>
+			<div class="rank" id="03">
+				<div class="title" style="color: white;">3rd</div>
+				<div class="ex" id='0301'>000000</div>
+				<div class="ex" id='0302'>000000</div>
+				<div class="ex" id='0303'>000000</div>
+			</div>
+			<div class="rank" id="04">
+				<div class="title" style="color: white;">4th</div>
+				<div class="ex" id='0401'>000000</div>
+				<div class="ex" id='0402'>000000</div>
+				<div class="ex" id='0403'>000000</div>
+				<div class="ex" id='0404'>000000</div>
+			</div>
+			<div class="rank" id="05">
+				<div class="title" style="color: white;">5th</div>
+				<div class="ex" id='0501'>000000</div>
+				<div class="ex" id='0502'>000000</div>
+				<div class="ex" id='0503'>000000</div>
+				<div class="ex" id='0504'>000000</div>
+				<div class="ex" id='0505'>000000</div>
+			</div>
+		</div>
+  </aside>
+  <footer>
+    < footer >
+  </footer>
+
+  <script>
+
+		/**
+		*
+		* @Author Developer SaintPark
+		* @Blog https://developersp.tistory.com/15
+		* - 프로그램에 대한 문의는 블로그 댓글을 활용해주세요.
+		*
+		*/
+
+		// 응모 내역에서 빈칸은 없어야 합니다.(빈칸이 있으면 인식하지 못함. 엑셀에서 빈칸을 - 등으로 채우는 작업 후 진행하시길 바랍니다.)
+		// 한번 추첨이 완료되면 되면 추천 리셋 버튼 클릭 or 새로고침 이전까지 재추첨 및 내용 수정이 안됩니다.
+
+		var inExcelJSON;
+		var prizeIndex = 0;
+		var prizeTable = $("#prizeTable");
+		var winnerArray = new Array();
+		var winnerField = new Array();
+		var isPrize = 0;
+
+		function Upload() {
+
+		  if(isPrize != 0) {
+			return;
+		  }
+
+		  //Reference the FileUpload element.
+		  var fileUpload = document.getElementById("fileUpload");
+
+		  //Validate whether File is valid Excel file.
+		  var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+		  if (regex.test(fileUpload.value.toLowerCase())) {
+			if (typeof(FileReader) != "undefined") {
+			  var reader = new FileReader();
+
+			  //For Browsers other than IE.
+			  if (reader.readAsBinaryString) {
+				reader.onload = function(e) {
+				  ProcessExcel(e.target.result);
+				  jsSetPrizeToTable();
+				};
+				reader.readAsBinaryString(fileUpload.files[0]);
+			  } else {
+				//For IE Browser.
+				reader.onload = function(e) {
+				  var data = "";
+				  var bytes = new Uint8Array(e.target.result);
+				  for (var i = 0; i < bytes.byteLength; i++) {
+					data += String.fromCharCode(bytes[i]);
+				  }
+				  ProcessExcel(data);
+				  jsSetPrizeToTable();
+				};
+				reader.readAsArrayBuffer(fileUpload.files[0]);
+			  }
+			} else {
+			  alert("HTML5를 지원하는 브라우저로 사용해주세요.");
+			}
+		  } else {
+			alert("유효한 엑셀 파일을 업로드하세요.");
+		  }
+		};
+
+		function jsSetPrizeToTable() {
+
+		  winnerField = Object.keys(inExcelJSON[0]);
+
+
+		  for(var i = 0; i < winnerField.length; i++) {
+			$('#tableHeader').append('<th>'+winnerField[i]+'</th>');
+		  }
+
+		}
+
+		function ProcessExcel(data) {
+		  //Read the Excel File data.
+		  var workbook = XLSX.read(data, {
+			type: 'binary'
+		  });
+
+		  //Fetch the name of First Sheet.
+		  var firstSheet = workbook.SheetNames[0];
+
+		  //Read all rows from First Sheet into an JSON array.
+		  var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+
+		  inExcelJSON = excelRows;
+
+		};
+
+		$(function() {
+
+		  // 상품 추가 클릭시 테이블에 상품 추가
+		  $( "#addPrize1" ).click(function() {
+
+			if(isPrize != 0) {
+			  return;
+			}
+
+			 var prizeName = $("#prizeName").val();
+
+			 if(prizeName == "" || prizeName == null) {
+			   alert("상품명을 입력하세요!");
+			   return;
+			 }
+
+			 $('#prizeTable > tbody:last').append('<tr class="setWinnerTr"><td>'+prizeIndex+'</td><td>'+prizeName+'</td></tr>');
+			 prizeIndex++;
+		  });
+
+		  $( "#addPrize5" ).click(function() {
+
+			if(isPrize != 0) {
+			  return;
+			}
+
+			 var prizeName = $("#prizeName").val();
+
+			 if(prizeName == "" || prizeName == null) {
+			   alert("상품명을 입력하세요!");
+			   return;
+			 }
+
+
+			 for(var i = 0; i < 5; i++) {
+			   $('#prizeTable > tbody:last').append('<tr class="setWinnerTr"><td>'+prizeIndex+'</td><td>'+prizeName+'</td></tr>');
+			   prizeIndex++;
+			 }
+
+		  });
+
+		  $( "#addPrize20" ).click(function() {
+
+			if(isPrize != 0) {
+			  return;
+			}
+
+			 var prizeName = $("#prizeName").val();
+
+			 if(prizeName == "" || prizeName == null) {
+			   alert("상품명을 입력하세요!");
+			   return;
+			 }
+
+
+			 for(var i = 0; i < 20; i++) {
+			   $('#prizeTable > tbody:last').append('<tr class="setWinnerTr"><td>'+prizeIndex+'</td><td>'+prizeName+'</td></tr>');
+			   prizeIndex++;
+			 }
+
+		  });
+
+		  $( "#addPrize100" ).click(function() {
+
+			if(isPrize != 0) {
+			  return;
+			}
+
+			 var prizeName = $("#prizeName").val();
+
+			 if(prizeName == "" || prizeName == null) {
+			   alert("상품명을 입력하세요!");
+			   return;
+			 }
+
+
+			 for(var i = 0; i < 100; i++) {
+			   $('#prizeTable > tbody:last').append('<tr class="setWinnerTr"><td>'+prizeIndex+'</td><td>'+prizeName+'</td></tr>');
+			   prizeIndex++;
+			 }
+
+		  });
+
+
+		  // 상품 삭제
+		  $('#delPrize').click(function() {
+
+			if(isPrize != 0) {
+			  return;
+			}
+
+			$('#prizeTable > tbody:last > tr:last').remove();
+			if(prizeIndex > 0) {
+			  prizeIndex--;
+			}
+		  });
+
+		  // 상품 추첨
+		  $('#setWinner').click(function() {
+
+			jsSetWinner();
+
+		  });
+
+		  $('#saveWinner').click(function() {
+
+			if(isPrize != 1) {
+			  alert("먼저 추첨을 시작하세요");
+			  return;
+			}
+
+			TableToExcel.convert(document.getElementById("prizeTable"));
+		  });
+
+		  $( "#resetWinner" ).click(function() {
+
+			if(confirm("모든 데이터를 리셋하시겠습니까?")) {
+			  location.reload();
+			}
+
+		  });
+
+		});
+
+		function jsSetWinner() {
+
+		  if(isPrize != 0) {
+			return;
+		  }
+
+		  $("td.winnerTd").text("");
+
+		  winnerArray = [];
+		  var applyNum;
+
+		  if(prizeIndex < 1) {
+			alert("상품이 없습니다.");
+			return false;
+		  }
+
+		  if(inExcelJSON === undefined) {
+			alert("엑셀을 업로드해주세요.");
+			return false;
+		  } else {
+			 applyNum = inExcelJSON.length;
+		  }
+
+		  isPrize = 1;
+
+		  var setMaxCnt = prizeIndex > applyNum ? applyNum : prizeIndex;
+
+		  for(var i = 0; i < setMaxCnt;) {
+			  var randomNum = makeRandom(parseInt(applyNum));
+			  if(checkDuple(winnerArray, randomNum)){
+				winnerArray.push(randomNum);
+				i++;
+			  }
+		  }
+
+		  $("tr.setWinnerTr").each(function(index, item) {
+
+			  var tmpString = '';
+
+			  for(var k = 0; k < winnerField.length; k++) {
+				var tmpK = String(winnerField[k].trim());
+				tmpString += '<td>'+inExcelJSON[winnerArray[index]][tmpK]+'</td>';
+			  }
+
+			  $(item).append(tmpString);
+
+		  })
+
+		}
+
+		function makeRandom(max){
+		  var RandVal = Math.floor(Math.random()*(max));
+		  return RandVal;
+		}
+
+		function checkDuple(inArray, val) {
+		  for(var j = 0; j < inArray.length; j++) {
+			if(inArray[j] == val) {
+			  return false;
+			}
+		  }
+		  return true;
+		}
+
+
+	  </script>
+
+	<script src="assets/js/jquery-1.10.1.min.js"></script>
+	<script src="assets/js/jquery.splitflap.js"></script>
+	<script>
+		(function ($) {
+			$(document).ready(function () {
+
+				var ratio = 0.5;
+				$('.resized-splitflap')
+						.splitFlap({
+							charWidth:  50 * ratio,
+							charHeight: 100 * ratio,
+							imageSize:  (2500 * ratio) + 'px ' + (100 * ratio) + 'px'
+				});
+			});
+		})(jQuery);
+
+		function chgNo(obj){
+			console.log( obj.id );
+			$('#' + obj.id ).html('111111');
+		}
+	</script>
+
+</body>
+</html>

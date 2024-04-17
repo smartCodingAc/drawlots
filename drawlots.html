@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <title>경기도 임상병리사회 추첨 시스템</title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="kensu">
+  <meta name="Keywords" content="추첨">
+  <meta name="Description" content="환경설정">
+  <link rel="stylesheet" href="assets/css/basic.css">
+  <script src="assets/js/jquery-3.4.1.js"></script>
+  <script src="assets/js/common.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Tmon';
+      font-weight: normal;
+      font-style: normal;
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot');
+      src: url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.eot?#iefix') format('embedded-opentype'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff2') format('woff2'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.woff') format('woff'),
+        url('https://cdn.jsdelivr.net/gh/webfontworld/tmon/Tmon.ttf') format("truetype");
+      font-display: swap;
+    }
+
+    * {
+      font-family: "Tmon";
+    }
+
+    .example {
+      width: 35%;
+      padding: 0 0 10px;
+      margin-bottom: 20px;
+      float: right;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .example .rank {
+      float: left;
+    }
+
+    .example .rank .title {
+      width: 100%;
+      margin: 0 0 10px;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: normal;
+      background: #333333;
+    }
+
+    .example .rank .ex {
+      float: left;
+      margin: 5px 10px;
+    }
+  </style>
+</head>
+
+<body class="hello" style="background:black url( 'assets/images/image05.png') no-repeat fixed 0% 0%/100% 100%;">
+  <header>
+    <!-- < header > -->
+    <h1 id="pageTitle" style="font-weight: 900; font-size: 180%; color: #252525;">경기도 임상병리사회 추첨 시스템</h1>
+  </header>
+  <!-- 
+		<nav>
+		< nav >
+		<ul>
+		  <li></li>
+		  <li></li>
+		  <li></li>
+		</ul>
+		</nav>
+		-->
+  <section style="width: calc(100% - 100px);">
+    <!-- < section > -->
+    <!-- <header>< header ></header> -->
+    <!-- 
+			<article id="filearea">
+				< article >
+				<input type="file" id="my_file_input" />
+				<input type="button" value="설정저장" id="saveConfig">
+			</article>
+			 -->
+    <!-- < article > -->
+    <div class="setupbox" style="background:#666666;">
+      <div class="title" style="background:#666666; font-size:28px; color: white;">
+        <div class="resized-splitflap ex" id="fliptext" style="margin:10px 0; float:left;">Congraturations !</div>
+        <div id="right" style="float:right;">
+          <input type="button" value="재추첨" id="reDrawlots" style="display: none;">
+          <input type="button" value="계속" id="doDrawlots">
+        </div>
+      </div>
+      <div id="setin" style="width: calc( 98% - 344px);">
+        <img id="chgImg" src="assets/images/result_defalut.jpg" width="100%" height="440px" BORDER="0" ALT="축하합니다!!!" />
+      </div>
+      <div class="example" style="width: 344px;">
+        <div class="rank" id="resultbox">
+          <div class="title" style="color: white; font-size:23px; width: 344px;">
+            <span id="stageName"></span> 추첨결과
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- <footer>< footer ></footer> -->
+  </section>
+  <!-- 
+		<aside>
+		< aside >
+		</aside>
+		-->
+  <footer style="font-weight: 600; font-size: 140%; color: #252525;">
+    <!-- < footer > -->
+    <img src="assets/images/logo.jpg" width="172" height="74" border="0" alt="경기도 임상병리사회"
+      style="width:172px;height:74px;vertical-align:middle;">
+    <span style="display:inline-block; width:30px;"></span>
+    경기도 임상병리사회
+    <!--
+			<iframe src="assets/media/wheel.mp3" allow="autoplay" style="display:none" id="iframeAudio">
+			</iframe>
+			-->
+    <audio src="assets/media/wheel.mp3" autoplay="autoplay" />
+  </footer>
+  <script>
+
+  </script>
+
+  <script src="assets/js/jquery-1.10.1.min.js"></script>
+  <script src="assets/js/jquery.splitflap.js"></script>
+  <script>
+
+    // localStorage에서 불러낸 JSON data 
+    var stageData = JSON.parse(localStorage.getItem('stageData'));
+    var inExcelJSON = JSON.parse(localStorage.getItem('inExcelJSON'));
+    var stageNo = localStorage.getItem('stageNo');
+
+    var restStage = stageData.length - stageNo;
+    console.log(restStage);
+
+    // 재추첨 카운터
+    var delWinnerCnt = 0;
+
+    (function ($) {
+
+      $(document).ready(function () {
+
+        console.log("Line 129 - 현재 스테이지 : " + stageNo);								// 현재 스테이지
+        console.log("Line 130 - 마지막 스테이지 : " + (stageData.length - 1));			// 마지막 스테이지
+        console.log("Line 131 - 추첨명 : " + stageData[stageNo].stageName);				// 추첨명
+        console.log("Line 132 - 추첨수 : " + stageData[stageNo].stageCnt);				// 추첨수
+
+        console.log("Line 134 - 인원수 : " + inExcelJSON.length);							// 인원수
+        console.log("Line 135 - 인원 전체 : ");											// 인원 전체
+        console.log(inExcelJSON);
+
+        // 이미지 변경
+        if (restStage == 1) {
+          var fileUrl = "assets/images/result_0" + restStage + ".jpg"
+          $("#chgImg").attr("src", fileUrl);
+          console.log("1등 추첨 필요");
+        } else if (restStage < 5) {
+          var fileUrl = "assets/images/result_0" + restStage + ".jpg"
+          $("#chgImg").attr("src", fileUrl);
+        }
+
+        // 타이틀, 추첨명
+        $("#pageTitle").html(inExcelJSON[0].교육명);
+        $('#stageName').html(stageData[stageNo].stageName);
+
+        // 당첨자 
+        var winnerArray = localStorage.getItem('winnerArray').split(",");
+        console.log("Line 154 - 당첨자 : " + winnerArray.toString());
+
+        var html = "";
+
+        // 당첨자 캐스팅
+        for (var i in winnerArray) {
+          var idx = winnerArray[i];
+          html += "<div class='resized-splitflap ex' id='" + winnerArray[i] + "' onclick='chgWinner(this)' >" + inExcelJSON[idx].면허번호 + "</div>";
+        }
+
+        $('#resultbox').append(html);
+
+        var ratio = 0.5;
+        $('.resized-splitflap')
+          .splitFlap({
+            charWidth: 50 * ratio,
+            charHeight: 100 * ratio,
+            imageSize: (2500 * ratio) + 'px ' + (100 * ratio) + 'px'
+          });
+
+      });
+
+      // 재추첨 - 삭제 예정
+      $("#reDrawlots").click(function () {
+
+        if (delWinnerCnt != 0) {
+
+          var was = localStorage.getItem('winnerArray');	// 현재 당첨자
+          var das = localStorage.getItem('delArray');		// 당첨 제외자
+          var chkArray = was + "," + das;
+          chkArray = chkArray.split(",");
+
+          var winnerArray = (was == "") ? new Array() : was.split(",");
+
+          var applyNum = inExcelJSON.length;
+          var setMaxCnt = delWinnerCnt;
+          for (var i = 0; i < setMaxCnt;) {
+            var randomNum = makeRandom(parseInt(applyNum));
+            if (checkDuple(chkArray, randomNum)) {
+              winnerArray.push(randomNum);
+              i++;
+            }
+          }
+
+          localStorage.setItem("winnerArray", winnerArray.toString());
+          location.reload();
+        }
+      });
+
+      // 계속 진행
+      $("#doDrawlots").click(function () {
+
+        // 추첨결과 저장
+        var was = localStorage.getItem('winnerArray');	// 현재 당첨자
+        var das = localStorage.getItem('delArray');		// 당첨 제외자
+
+        var resultData = '{';
+        resultData += '\"stageName\":\"' + stageData[stageNo].stageName + '\"';
+        resultData += ',\"idxArray":\"' + was + '\"}';
+
+        var oriData = localStorage.getItem('resultArray');
+        if (oriData == "") {
+          localStorage.setItem("resultArray", resultData);
+        } else {
+          localStorage.setItem("resultArray", oriData + "," + resultData);
+        }
+
+        // 당첨제외자 통합
+        localStorage.setItem("delArray", das + "," + was);
+
+
+        if (restStage > 1) {
+          // 다음단계 당첨자 선출
+          var chkArray = localStorage.getItem('delArray');
+          chkArray = chkArray.split(",");
+
+          var winnerArray = new Array();
+          var applyNum = inExcelJSON.length;
+          var setMaxCnt = stageData[++stageNo].stageCnt;
+          localStorage.setItem("stageNo", stageNo);
+
+          for (var i = 0; i < setMaxCnt;) {
+            var randomNum = makeRandom(parseInt(applyNum));
+            if (checkDuple(chkArray, randomNum)) {
+              winnerArray.push(randomNum);
+              chkArray.push(randomNum);
+              i++;
+            }
+          }
+
+          localStorage.setItem("winnerArray", winnerArray.toString());
+          location.reload();
+
+        } else {
+          // 마지막 라운드
+          // 결과 데이터 완성
+          var resultArray = "[" + localStorage.getItem('resultArray') + "]";
+          localStorage.setItem("resultArray", resultArray);
+          console.log(resultArray);
+          location.href = "result.html";
+        }
+
+      });
+
+      function makeRandom(max) {
+        var RandVal = Math.floor(Math.random() * (max));
+        return RandVal;
+      }
+
+      function checkDuple(inArray, val) {
+        for (var j = 0; j < inArray.length; j++) {
+          if (inArray[j] == val) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+
+    })(jQuery);
+
+    // 중복 확인
+    function checkDupleArr(inArray, val) {
+      for (var j = 0; j < inArray.length; j++) {
+        if (inArray[j] == val) {
+          return false;
+        }
+      }
+      return true;
+    }
+    // 중복 제거
+    function removeDupleArrItem(inArray, val) {
+      for (var j = 0; j < inArray.length; j++) {
+        if (inArray[j] == val) {
+          inArray.splice(j, 1);
+        }
+      }
+    }
+
+    // 클릭 시 변경 - 재추첨
+    function chgWinner(obj) {
+
+      let audio = new Audio('assets/media/wheel.mp3');
+      audio.play();
+      let id = obj.id;
+      let newWinner = id;
+
+      // 기존 재추첨 로직
+      let was = localStorage.getItem('winnerArray');	// 현재 당첨자
+      let das = localStorage.getItem('delArray');		// 당첨 제외자
+      let chkArray = was + "," + das;
+      chkArray = chkArray.split(",");
+
+      console.log("Line 295 - 현재 당첨자 : " + was);
+      console.log("Line 296 - 당첨 제외자 : " + das);
+      console.log("Line 297 - chkArray(현재 당첨자와 당첨 제외자 통합) : " + chkArray.toString());
+
+      // 무작위 추첨 후 
+      let winnerArray = (was == "") ? new Array() : was.split(",");
+      let delArray = (das == "") ? new Array() : das.split(",");
+
+      let applyNum = inExcelJSON.length;
+      let randomNum;
+      while (true) {
+        randomNum = Math.floor(Math.random() * (applyNum));
+        if (checkDupleArr(chkArray, randomNum)) {
+          removeDupleArrItem(winnerArray, id);
+          delArray.push(id);
+          winnerArray.push(randomNum);
+          break;
+        }
+      }
+      console.log("Line 333 - winnerArray : " + winnerArray.toString());
+      console.log("Line 333 - delArray : " + delArray.toString());
+
+      let ratio = 0.5;
+      $('#' + id)
+        .text(inExcelJSON[randomNum].면허번호)
+        .splitFlap({
+          charWidth: 50 * ratio,
+          charHeight: 100 * ratio,
+          imageSize: (2500 * ratio) + 'px ' + (100 * ratio) + 'px'
+        });
+      $('#' + id).attr('id', randomNum)
+      localStorage.setItem("winnerArray", winnerArray.toString());
+      localStorage.setItem("delArray", delArray.toString());
+
+    }
+
+
+    // 추첨제외자 처리 - 삭제 예정
+    function delWinner(obj) {
+      var id = obj.id;
+
+      var winnerArray = localStorage.getItem('winnerArray').split(",");
+      var delArray = localStorage.getItem('delArray');
+      if (delArray == "") {
+        delArray = new Array();
+      } else {
+        delArray = localStorage.getItem('delArray').split(",");
+      }
+
+      // 배열에서 원소 제거
+      winnerArray.splice(winnerArray.indexOf(id), 1);
+      // 제외자 추가
+      delArray.push(id);
+
+      localStorage.setItem("winnerArray", winnerArray.toString());
+      localStorage.setItem("delArray", delArray.toString());
+
+      obj.remove();
+      delWinnerCnt++;
+      $('#reDrawlots').show();
+      $('#doDrawlots').hide();
+    }
+
+  </script>
+
+</body>
+
+</html>
